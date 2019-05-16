@@ -1,0 +1,33 @@
+service: stepfunctions-test-chaining
+
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+
+functions:
+  add:
+    handler: handler.add
+  double:
+    handler: handler.double
+
+stepFunctions:
+  stateMachines:
+    simpleMaths:
+      name: simple-maths
+      definition:
+        Comment: example to demonstrate function chaining
+        StartAt: Add
+        States:
+          Add:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-add
+            Next: Double
+          Double:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-double
+            End: true

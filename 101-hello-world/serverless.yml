@@ -1,0 +1,27 @@
+service: stepfunctions-test
+
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+
+functions:
+  hello:
+    handler: handler.hello
+
+stepFunctions:
+  stateMachines:
+    helloWorld:
+      name: hello-world
+      definition:
+        Comment: hello world example
+        StartAt: SayHello
+        States:
+          SayHello:
+            Type: Task
+            Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-hello
+            End: true
